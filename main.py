@@ -4,34 +4,47 @@ import gym
 import argparse
 import os
 
+
+import numpy as np
+import torch
+import time
+import torch.nn as nn
+import torch.nn.functional as F
+from torch import optim
+
+import gym
+import pybullet
+import pybulletgym.envs
+import IPython
+from IPython import display
+import pybullet_envs
+
+import matplotlib.pyplot as plt
+
+
 import utils1
 import TD3
 import OurDDPG
 import DDPG
-import pybullet
-import pybulletgym.envs
-import pybullet_envs
 
 # Runs policy for X episodes and returns average reward
 # A fixed seed is used for the eval environment
 def eval_policy(policy, env_name, seed, eval_episodes=10):
-	eval_env = gym.make(env_name)
-	eval_env.seed(seed + 100)
-
-	avg_reward = 0.
-	for _ in range(eval_episodes):
-		state, done = eval_env.reset(), False
-		while not done:
-			action = policy.select_action(np.array(state))
-			state, reward, done, _ = eval_env.step(action)
-			avg_reward += reward
-
-	avg_reward /= eval_episodes
-
-	print("---------------------------------------")
-	print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}")
-	print("---------------------------------------")
-	return avg_reward
+    eval_env = gym.make(env_name)
+    eval_env.seed(seed + 100)
+    #eval_env.render()
+    avg_reward = 0.
+    for _ in range(eval_episodes):
+        state, done = eval_env.reset(), False
+        while not done:
+            action = policy.select_action(np.array(state))
+            state, reward, done, _ = eval_env.step(action)
+            avg_reward += reward
+    avg_reward /= eval_episodes
+    print("---------------------------------------")
+    print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}")
+    print("---------------------------------------")
+    return avg_reward
 
 
 if __name__ == "__main__":
@@ -54,18 +67,18 @@ if __name__ == "__main__":
 	parser.add_argument("--load_model", default="")                 # Model load file name, "" doesn't load, "default" uses file_name
 	args = parser.parse_args()
 
-# 	file_name = f"{args.policy}_{args.env}_{args.seed}"
-# 	print("---------------------------------------")
-# 	print(f"Policy: {args.policy}, Env: {args.env}, Seed: {args.seed}")
-# 	print("---------------------------------------")
+	file_name = f"{args.policy}_{args.env}_{args.seed}"
+	print("---------------------------------------")
+	print(f"Policy: {args.policy}, Env: {args.env}, Seed: {args.seed}")
+	print("---------------------------------------")
 
-# 	if not os.path.exists("./results"):
-# 		os.makedirs("./results")
+	if not os.path.exists("./results"):
+		os.makedirs("./results")
 
-# 	if args.save_model and not os.path.exists("./models"):
-# 		os.makedirs("./models")
+	if args.save_model and not os.path.exists("./models"):
+		os.makedirs("./models")
 
-	env = gym.make("Walker2DPyBulletEnv-v0")
+	env = gym.make("Walker2DMuJoCoEnv-v0")
 
 	# Set seeds
 	env.seed(args.seed)
@@ -149,5 +162,5 @@ if __name__ == "__main__":
 		# Evaluate episode
 		if (t + 1) % args.eval_freq == 0:
 			evaluations.append(eval_policy(policy, args.env, args.seed))
-# 			np.save(f"./results/{file_name}", evaluations)
-# 			if args.save_model: policy.save(f"./models/{file_name}")
+			np.save(f"./results/{file_name}", evaluations)
+			if args.save_model: policy.save(f"./models/{file_name}")

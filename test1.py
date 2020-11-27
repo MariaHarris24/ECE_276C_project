@@ -19,7 +19,7 @@ from torch import optim
 
 import gym
 import pybullet
-#import pybulletgym.envs
+import pybulletgym.envs
 import IPython
 from IPython import display
 import pybullet_envs
