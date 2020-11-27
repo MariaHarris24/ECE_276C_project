@@ -29,7 +29,7 @@ import TD3
 # A fixed seed is used for the eval environment
 def eval_policy(policy, env_name, seed, eval_episodes=10):
     eval_seed = seed + 100
-
+    
     eval_env = gym.make(env_name)
     eval_env.seed(eval_seed)
     eval_env.action_space.seed(eval_seed)
@@ -49,7 +49,7 @@ def eval_policy(policy, env_name, seed, eval_episodes=10):
 
 
 if __name__ == "__main__":
-
+	
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--policy", default="TD3")                  # Policy name (TD3, DDPG or OurDDPG)
 	parser.add_argument("--env", default="Walker2DMuJoCoEnv-v0")    # OpenAI gym environment name
@@ -86,9 +86,9 @@ if __name__ == "__main__":
 	env.action_space.seed(args.seed)
 	torch.manual_seed(args.seed)
 	np.random.seed(args.seed)
-
+	
 	state_dim = env.observation_space.shape[0]
-	action_dim = env.action_space.shape[0]
+	action_dim = env.action_space.shape[0] 
 	max_action = float(env.action_space.high[0])
 
 	kwargs = {
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 # 		policy.load(f"./models/{policy_file}")
 
 	replay_buffer = utils1.ReplayBuffer(state_dim, action_dim)
-
+	
 	# Evaluate untrained policy
 	evaluations = [eval_policy(policy, args.env, args.seed)]
 
@@ -125,6 +125,7 @@ if __name__ == "__main__":
 	episode_timesteps = 0
 	episode_num = 0
 
+	start_time = time.time()
 	for t in range(int(args.max_timesteps)):
 
 		episode_timesteps += 1
@@ -139,7 +140,7 @@ if __name__ == "__main__":
 			).clip(-max_action, max_action)
 
 		# Perform action
-		next_state, reward, done, _ = env.step(action)
+		next_state, reward, done, _ = env.step(action) 
 		done_bool = float(done) if episode_timesteps < env._max_episode_steps else 0
 
 		# Store data in replay buffer
@@ -152,26 +153,30 @@ if __name__ == "__main__":
 		if t >= args.start_timesteps:
 			policy.train(replay_buffer, args.batch_size)
 
-		if done:
+		if done: 
 			# +1 to account for 0 indexing. +0 on ep_timesteps since it will increment +1 even if done=True
 			print(f"Total T: {t+1} Episode Num: {episode_num+1} Episode T: {episode_timesteps} Reward: {episode_reward:.3f}")
 			# Reset environment
 			state, done = env.reset(), False
 			episode_reward = 0
 			episode_timesteps = 0
-			episode_num += 1
+			episode_num += 1 
 
 		# Evaluate episode
 		if (t + 1) % args.eval_freq == 0:
+			print("---------------------------------------")
+			print(f"Percent complete: {100*(t+1)/args.max_timesteps:.2f}, hours since start: {((time.time() - start_time) / 3600):.2f}")
+			print("---------------------------------------")
 			evaluations.append(eval_policy(policy, args.env, args.seed))
 			np.save(f"./results/{file_name}", evaluations)
 			if args.save_model: policy.save(f"./models/{file_name}")
 
-	plt.figure()
+	print("training took {:.2f} hours for {} timestamps".format((time.time() - start_time) / 3600, episode_timesteps))
+	plt.figure(figsize=(20, 10))
 	plt.plot(evaluations)
-	plt.xlabel(f'Every {args.eval_freq} update')
+	plt.xlabel(f'Every {args.eval_freq} updates')
 	plt.ylabel('Average rewards')
-	plt.title(t)
+	plt.title(file_name + ", trained {:.2f} hrs for {} timestamps".format((time.time() - start_time) / 3600, episode_timesteps))
 	plt.grid()
-	plt.savefig(file_name + ".png", dpi=400)
+	plt.savefig(file_name + "_rewards" + ".png", dpi=400)
 	plt.show()
