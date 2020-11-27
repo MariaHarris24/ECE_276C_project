@@ -1,37 +1,38 @@
-import numpy as np
-import torch
+import time
+import os
 import gym
 import argparse
-import os
 
+import pickle
 
 import numpy as np
 import torch
-import time
-import torch.nn as nn
+from torch import nn, optim
 import torch.nn.functional as F
-from torch import optim
 
 import gym
 import pybullet
 import pybulletgym.envs
+import pybullet_envs
+
 import IPython
 from IPython import display
-import pybullet_envs
 
 import matplotlib.pyplot as plt
 
-
 import utils1
 import TD3
-import OurDDPG
-import DDPG
+#import OurDDPG
+#import DDPG
 
 # Runs policy for X episodes and returns average reward
 # A fixed seed is used for the eval environment
 def eval_policy(policy, env_name, seed, eval_episodes=10):
+    eval_seed = seed + 100
+    
     eval_env = gym.make(env_name)
-    eval_env.seed(seed + 100)
+    eval_env.seed(eval_seed)
+    eval_env.action_space.seed(eval_seed)
     #eval_env.render()
     avg_reward = 0.
     for _ in range(eval_episodes):
@@ -51,7 +52,7 @@ if __name__ == "__main__":
 	
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--policy", default="TD3")                  # Policy name (TD3, DDPG or OurDDPG)
-	parser.add_argument("--env", default="Walker2DMuJoCoEnv-v0")          # OpenAI gym environment name
+	parser.add_argument("--env", default="Walker2DMuJoCoEnv-v0")    # OpenAI gym environment name
 	parser.add_argument("--seed", default=0, type=int)              # Sets Gym, PyTorch and Numpy seeds
 	parser.add_argument("--start_timesteps", default=25e3, type=int)# Time steps initial random policy is used
 	parser.add_argument("--eval_freq", default=5e3, type=int)       # How often (time steps) we evaluate
@@ -78,10 +79,11 @@ if __name__ == "__main__":
 	if args.save_model and not os.path.exists("./models"):
 		os.makedirs("./models")
 
-	env = gym.make("Walker2DMuJoCoEnv-v0")
+	env = gym.make(args.env)
 
 	# Set seeds
 	env.seed(args.seed)
+	env.action_space.seed(args.seed)
 	torch.manual_seed(args.seed)
 	np.random.seed(args.seed)
 	
@@ -164,3 +166,12 @@ if __name__ == "__main__":
 			evaluations.append(eval_policy(policy, args.env, args.seed))
 			np.save(f"./results/{file_name}", evaluations)
 			if args.save_model: policy.save(f"./models/{file_name}")
+                
+	plt.figure()
+	plt.plot(evaluations)
+	plt.xlabel(f'Every {args.eval_freq} update')
+	plt.ylabel('Average rewards')
+	plt.title(t)
+	plt.grid()
+	plt.savefig(file_name + ".png", dpi=400)
+	plt.show()

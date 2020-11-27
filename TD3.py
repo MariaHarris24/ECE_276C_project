@@ -4,12 +4,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# device setup
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if torch.cuda.is_available():
+    print('Using device:', torch.cuda.get_device_name(0))
+else:
+    print('Using device:', device)
 
 # Implementation of Twin Delayed Deep Deterministic Policy Gradients (TD3)
 # Paper: https://arxiv.org/abs/1802.09477
-
 
 class Actor(nn.Module):
 	def __init__(self, state_dim, action_dim, max_action):
