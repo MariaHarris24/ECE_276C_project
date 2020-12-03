@@ -12,9 +12,9 @@ from torch import nn, optim
 import torch.nn.functional as F
 
 import gym
-#import pybullet
-#import pybulletgym.envs
-#import pybullet_envs
+import pybullet
+import pybulletgym.envs
+import pybullet_envs
 
 import IPython
 from IPython import display
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--policy", default="TD3")                  # Policy name (TD3, DDPG or OurDDPG)
-    parser.add_argument("--env", default="Walker2d-v2")    # OpenAI gym environment name
+    parser.add_argument("--env", default="Walker2DBulletEnv-v0")    # OpenAI gym environment name
     parser.add_argument("--seed", default=0, type=int)              # Sets Gym, PyTorch and Numpy seeds
     parser.add_argument("--start_timesteps", default=25e3, type=int)# Time steps initial random policy is used
     parser.add_argument("--eval_freq", default=5e3, type=int)       # How often (time steps) we evaluate
@@ -227,5 +227,5 @@ if __name__ == "__main__":
     plt.savefig(file_name + "_rewards" + ".png", dpi=400)
     plt.show()
     
-    torch.save(myddpg,'./Td3_walker.pt')
-    torch.save(myddpg,'./Td3_walker.pth')
+    torch.save(myddpg,'./Td3_pybullet_walker.pt')
+    torch.save(myddpg,'./Td3_pybullet_walker.pth')
