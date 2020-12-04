@@ -172,12 +172,12 @@ if __name__ == "__main__":
 			if args.save_model: 
 				policy.save(f"./models/{file_name}")
 
-	print("training took {:.2f} hours for {} timestamps".format((time.time() - start_time) / 3600, episode_timesteps))
+	print("training took {:.2f} hours for {} timestamps".format((time.time() - start_time) / 3600, args.max_timesteps))
 	plt.figure(figsize=(20, 10))
 	plt.plot(evaluations)
 	plt.xlabel(f'Every {args.eval_freq} updates')
 	plt.ylabel('Average rewards')
-	plt.title(file_name + ", trained {:.2f} hrs for {} timestamps".format((time.time() - start_time) / 3600, episode_timesteps))
+	plt.title(file_name + ", trained {:.2f} hrs for {} timestamps".format((time.time() - start_time) / 3600, args.max_timesteps))
 	plt.grid()
 	plt.savefig(file_name + "_rewards" + ".png", dpi=400)
 	plt.show()
