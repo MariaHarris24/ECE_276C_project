@@ -179,7 +179,7 @@ if __name__ == "__main__":
 	plt.ylabel('Average rewards')
 	plt.title(file_name + ", trained {:.2f} hrs for {} timesteps".format((time.time() - start_time) / 3600, args.max_timesteps))
 	plt.grid()
-	plt.savefig(file_name + "_rewards" + ".png", dpi=400)
+	plt.savefig(file_name + "_rewards" + ".png", dpi=150)
 	plt.show()
     
 	torch.save(policy, "./" + file_name + ".pt") 
