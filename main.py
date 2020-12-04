@@ -52,7 +52,7 @@ if __name__ == "__main__":
 	
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--policy", default="TD3")                  # Policy name (TD3, DDPG or OurDDPG)
-	parser.add_argument("--env", default="Walker2DMuJoCoEnv-v0")    # OpenAI gym environment name
+	parser.add_argument("--env", default="Walker2d-v2")    # OpenAI gym environment name
 	parser.add_argument("--seed", default=0, type=int)              # Sets Gym, PyTorch and Numpy seeds
 	parser.add_argument("--start_timesteps", default=25e3, type=int)# Time steps initial random policy is used
 	parser.add_argument("--eval_freq", default=5e3, type=int)       # How often (time steps) we evaluate
@@ -169,7 +169,8 @@ if __name__ == "__main__":
 			print("---------------------------------------")
 			evaluations.append(eval_policy(policy, args.env, args.seed))
 			np.save(f"./results/{file_name}", evaluations)
-			if args.save_model: policy.save(f"./models/{file_name}")
+			if args.save_model: 
+				policy.save(f"./models/{file_name}")
 
 	print("training took {:.2f} hours for {} timestamps".format((time.time() - start_time) / 3600, episode_timesteps))
 	plt.figure(figsize=(20, 10))
@@ -180,3 +181,8 @@ if __name__ == "__main__":
 	plt.grid()
 	plt.savefig(file_name + "_rewards" + ".png", dpi=400)
 	plt.show()
+    
+	torch.save(policy, "./" + file_name + ".pt") 
+	torch.save(policy, "./" + file_name + ".pth") 
+
+    
