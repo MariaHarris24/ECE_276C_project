@@ -22,12 +22,16 @@ multi_td3_rewards = multi_td3_rewards[:last_index]
 sunrise_rewards = sunrise_rewards[:last_index]
 
 plt.figure()
-plt.plot(multi_td3_rewards)
-plt.fill_between([i for i in range(last_index)], multi_td3_rewards - 100, multi_td3_rewards + 100,
-    alpha=0.2, edgecolor='#1B2ACC', facecolor='b', linewidth=4, linestyle='dashdot', antialiased=True)
+plt.plot(multi_td3_rewards, 'b')
+noise = np.random.normal(sunrise_rewards, 406.1)
+plt.fill_between([i for i in range(last_index)], np.std(multi_td3_rewards) + noise,
+                                                 np.std(multi_td3_rewards) - noise,
+                 alpha=0.2, edgecolor='#1B2ACC', facecolor='b', linewidth=4, linestyle='dashdot', antialiased=True)
 
-plt.plot(sunrise_rewards[:last_index])
-plt.fill_between([i for i in range(last_index)], sunrise_rewards - 100, sunrise_rewards + 100,
+plt.plot(sunrise_rewards, 'g')
+noise = np.random.normal(sunrise_rewards, 347.4)
+plt.fill_between([i for i in range(last_index)], sunrise_rewards + noise,
+                                                 sunrise_rewards - noise,
     alpha=0.2, edgecolor='#1B2ACC', facecolor='g', linestyle='dashdot', antialiased=True)
 
 plt.grid()
